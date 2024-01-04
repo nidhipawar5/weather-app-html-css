@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=0.1">
+  <title>Weather App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <video id="weatherVideo" autoplay loop muted></video>
+  <div class="card">
+    <div class="search">
+      <input type="text" id="cityInput" placeholder="enter city name" spellcheck="false">
+      <button><img src="images/search.png"></button>
+    </div>
+    <div class="weather">
+      <img src="images/rain.png" class="weather-icon">
+      <h4 class="description"></h4>
+      <h1 class="temp">22°c</h1>
+      <h2 class="city">New York</h2>
+      <div class="details">
+        <div class="col">
+          <img src="images/humidity.png">
+          <div>
+            <p class="humidity">50%</p>
+            <p>Humidity</p>
+          </div>
+        </div>
+        <div class="col">
+          <img src="images/wind.png">
+          <div>
+            <p class="wind">15 km/h</p>
+            <p>Wind Speed</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="error">
+      <p>Invalid City Name</p>
+    </div>
+
+    <script>
+
+      const apiKey = "65103a86d5b43e5a7936c5abd15238e8";
+      const apiUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+
+      let data; // Declare data variable here
+
+      const searchBox = document.querySelector(".search input");
+      const searchBtn = document.querySelector(".search button");
+      const weatherIcon = document.querySelector(".weather-icon");
+
+      let videoSource = ""; // Declare videoSource variable
+      const weatherVideo = document.getElementById("weatherVideo"); // Assuming you have a <video> element with the id="weatherVideo"
+
+      // Initial background setting
+      updateBackground("Default");
+
+      async function checkWeather(city) {
+        const response = await fetch(apiUrl + city + `&appid=${apiKey}`);
+
+        if (response.status == 404) {
+          document.querySelector(".error").style.display = "block";
+          document.querySelector(".weather").style.display = "none";
+        } else {
+          data = await response.json(); // Assign value to data variable
+          console.log("data:", data);
+
+          // Check if 'data' has the expected structure
+          if (data && data.weather && data.weather.length > 0) {
+            document.querySelector(".city").innerHTML = data.name;
+            document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "°c";
+            document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
+            document.querySelector(".wind").innerHTML = data.wind.speed + " km/h";
+
+            // Display main weather condition in the details element
+            document.querySelector(".description").innerHTML = data.weather[0].main;
+
+            // Image functionality
+            switch (data.weather[0].main) {
+              case "Clouds":
+                weatherIcon.src = "images/clouds.png";
+                break;
+              case "Clear":
+                weatherIcon.src = "images/clear.png";
+                break;
+              case "Rain":
+                weatherIcon.src = "images/rain.png";
+                break;
+              case "Drizzle":
+                weatherIcon.src = "images/drizzle.png";
+                break;
+              case "Mist":
+                weatherIcon.src = "images/mist.png";
+                break;
+              default:
+                weatherIcon.src = "images/default.png"
+            }
+
+            // Video functionality
+            switch (data.weather[0].main) {
+              case "Clouds":
+                videoSource = "videos/clouds.mp4";
+                break;
+              case "Clear":
+                videoSource = "videos/clear.mp4";
+                break;
+              case "Rain":
+                videoSource = "videos/rain.mp4";
+                break;
+              case "Drizzle":
+                videoSource = "videos/drizzle.mp4";
+                break;
+              case "Mist":
+                videoSource = "videos/mist.mp4";
+                break;
+              default:
+                videoSource = "videos/default.mp4";
+            }
+
+            // Set the video source
+            weatherVideo.src = videoSource;
+
+            document.querySelector(".weather").style.display = "block";
+            document.querySelector(".error").style.display = "none";
+          } else {
+            console.error("Invalid data structure:", data);
+            // Handle the case where the data structure is not as expected
+          }
+        }
+      }
+
+      // for the search to work on pressing Search btn
+      searchBtn.addEventListener("click", () => {
+        checkWeather(searchBox.value);
+      });
+
+      // for the search to work on pressing Enter key
+      searchBox.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          checkWeather(searchBox.value);
+        }
+      });
+
+      function updateBackground(weatherCondition) {
+        switch (weatherCondition) {
+          case "Clouds":
+            videoSource = "videos/clouds.mp4";
+            break;
+          case "Clear":
+            videoSource = "videos/clear.mp4";
+            break;
+          case "Rain":
+            videoSource = "videos/rain.mp4";
+            break;
+          case "Drizzle":
+            videoSource = "videos/drizzle.mp4";
+            break;
+          case "Mist":
+            videoSource = "videos/mist.mp4";
+            break;
+          default:
+            videoSource = "videos/default.mp4";
+        }
+
+        weatherVideo.src = videoSource;
+      }
+
+    </script>
+  </div>
+</body>
+
+</html>
